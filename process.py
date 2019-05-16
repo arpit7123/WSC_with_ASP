@@ -65,9 +65,9 @@ def main(input_file):
         counter+=1
 
 def execute_clingo(in_file):
-    curr_dir = "/home/arpit/workspace/WinogradPhd/WebContent/WEB-INF/lib/WSC_data/wsc_may02_2019/kparser_jsons/with_knowledge"
-    clingo_exec_file = "/home/arpit/workspace/WinogradPhd/WebContent/WEB-INF/lib/Clingo/clingo"
-    asp_rules_file = "/home/arpit/workspace/WinogradPhd/WebContent/WEB-INF/lib/WSC_data/wsc_may02_2019/kparser_jsons/with_knowledge/asp_rules"
+    curr_dir = "/home/WebContent/WEB-INF/lib/WSC_data/wsc_may02_2019/kparser_jsons/with_knowledge"
+    clingo_exec_file = "clingo"
+    asp_rules_file = "asp_rules"
     asp_input_file = in_file
     
     bashCommand = clingo_exec_file + " " + asp_rules_file + " " + asp_input_file + " 0"
@@ -88,16 +88,8 @@ def execute_clingo(in_file):
     #print(output)
 
 if __name__=="__main__":
-    #main("test.json")
-    #main("./done/type9_sents_step2_triples_know.json")
-    main("./done/combined_probs.json")
-    #main("./done/test.json")
-    #execute_clingo("./test")
-
-    #aa = re.findall( r'all (.*?) are', 'all cats are smarter than dogs, all dogs are dumber than cats')
-    #for a in aa:
-    #    print(a)
-
+    main("combined_probs.json")
+    
 
 
 
