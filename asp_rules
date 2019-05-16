@@ -1,0 +1,83 @@
+% Algorithm Step 1:
+node_G_s(X) :- has_s(X,R,Y).
+node_G_s(Y) :- has_s(X,R,Y), R!="instance_of".
+edge_G_s(X,R,Y) :- has_s(X,R,Y), R!="instance_of".
+instance_of_G_s(X,Y) :- has_s(X,R,Y), R=="instance_of".
+
+% Algorithm Step 2:
+node_G_k(X) :- has_k(X,R,Y), R!="instance_of".%, R!="is_same_as".
+node_G_k(Y) :- has_k(X,R,Y), R!="instance_of".%, R!="is_same_as".
+edge_G_k(X,R,Y) :- has_k(X,R,Y), R!="instance_of", R!="is_same_as".
+instance_of_G_k(X,Y) :- has_k(X,R,Y), R=="instance_of".
+is_same_as(X,Y) :- has_k(X,R,Y), R=="is_same_as".
+
+%pronoun("he_9").
+%ans_ch1("man_2").
+%ans_ch2("son_7").
+
+% Given two graphs G_s and G_k such that,
+% node_G_s(X) represents a node in G_s
+% edge_G_s(X,R,Y) represents a directed edge in G_s with label R
+% instance_of_G_s(X,C) represents that a node X in G_s is instance of C
+%
+% node_G_k(X) represents a node in G_k
+% edge_G_k(X,R,Y) represents a directed edge in G_k with label R
+% instance_of_G_k(X,C) represents that a node X in G_k is instance of C
+% is_same_as(X,Y) represents that a node X in G_k is same as (or refers to) a node Y in G_k
+%
+% The below code extracts a set of pairs by using the predicate matches(x,y) such that
+% 1. x is a node in G_s and y is a node in G_k
+% 2. x and y are instances of same class
+% 3. each node y in G_k has a corresponding matches(x,y)
+% 4. for all matches(x,y) if y in G_k are replaced by their corresponding x then the node replaced G_k becomes a subgraph of G_s. In other words,
+%    The set of nodes in node replaced G_k becomes a subset of the set of nodes in G_s,
+%    The set of edges in the node replaced G_k becomed a subset of the set of edge in G_k
+
+
+% Generating all possible matching pairs between the nodes in G_s and G_k
+{ matches(X,Y) : node_G_s(X), node_G_k(Y) }.
+
+% Constraint 1: one node in G_k can not be matched with two different nodes in G_s
+:- matches(X,Y), matches(X1,Y), X!=X1.
+
+% Constraint 2: one node in G_s can not be matched with two different nodes in G_k
+:- matches(X,Y), matches(X,Y1), Y!=Y1.
+
+% Constraint 3: Each node in G_k is matched with a node in G_s
+k_node_matches(Y) :- matches(X,Y).
+:- not k_node_matches(Y), node_G_k(Y).
+
+% Constraint 4: If matches(X,Y) is true then both X and Y are instances of same class.
+:- matches(X,Y), instance_of_G_s(X,C), not instance_of_G_k(Y,C).
+
+% Constraint 5: if X matches X1 and Y matches Y1 and (X1,R,Y1) is an edge in G_k then (X,R,Y) must be an edge in G_s
+:- edge_G_k(X1,R,Y1), matches(X,X1), matches(Y,Y1), not edge_G_s(X,R,Y).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+invalid_1 :- matches(P,N1), matches(X,N2), ans_ch1(A), pronoun(P), A!=X, N1!=N2, is_same_as(N1,N2).
+invalid_1 :- matches(P,N1), matches(X,N2), ans_ch1(A), pronoun(P), A!=X, N1!=N2, is_same_as(N2,N1).
+ans(A) :- matches(P,N1), matches(A,N2), ans_ch1(A), not invalid_1, pronoun(P), is_same_as(N1,N2).
+ans(A) :- matches(P,N1), matches(A,N2), ans_ch1(A), not invalid_1, pronoun(P), is_same_as(N2,N1).
+
+invalid_2 :- matches(P,N1), matches(X,N2), ans_ch2(A), pronoun(P), A!=X, N1!=N2, is_same_as(N1,N2).
+invalid_2 :- matches(P,N1), matches(X,N2), ans_ch2(A), pronoun(P), A!=X, N1!=N2, is_same_as(N2,N1).
+ans(A) :- matches(P,N1), matches(A,N2), ans_ch2(A), not invalid_2, pronoun(P), is_same_as(N1,N2).
+ans(A) :- matches(P,N1), matches(A,N2), ans_ch2(A), not invalid_2, pronoun(P), is_same_as(N2,N1).
+
+:- ans(A1), ans(A2), A1!=A2.
+
+
+#show ans/1.
+%#show node_G_s/1.
+%#show node_G_k/1.
+%#show matches/2.
+%#show invalid_1/0.
+%#show invalid_2/0.
+%#show is_same_as/2.
+%#show instance_of_G_k/2.
+%#show instance_of_G_s/2.
+%#show edge_G_k/3.
+%#show edge_G_s/3.
